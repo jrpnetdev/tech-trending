@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-A full-stack Next.js dashboard that aggregates technology trends in real-time from news, YouTube, Reddit, GitHub, and Stack Overflow — with separate views for **UK** and **US**.
+A full-stack Next.js dashboard that aggregates technology trends in real-time from GitHub, Hacker News, Dev.to, npm, crates.io, Lobste.rs, Docker Hub, Stack Overflow, NewsAPI, YouTube, and Reddit — with a **Global** tab (default) and separate **UK** / **US** country tabs.
 
 ## Tech Stack
 
@@ -105,7 +105,8 @@ Copy `.env.local.example` → `.env.local` and fill in keys. App works without a
 ## Key Patterns
 
 ### Data fetching
-- All 5 API endpoints fetched **in parallel** from the browser via `Promise.allSettled()`
+- All 10 API endpoints fetched **in parallel** from the browser via `Promise.allSettled()`
+- Each resolves independently — sections appear as their data arrives, no waiting for the slowest source
 - Each Route Handler caches responses for 5 minutes (`next: { revalidate: 300 }`)
 - Every API call returns `{ data, isDemo, error? }` — demo data is always available as fallback
 
@@ -135,27 +136,48 @@ Copy `.env.local.example` → `.env.local` and fill in keys. App works without a
   2. `/youtube/v3/videos?part=snippet,statistics&id=<ids>` — fetch full details (statistics, categoryId)
 
 ### Reddit subreddit restrictions
-- Some subreddits (`HotUKDeals`, `uktechdeals`, `frugaluk`) return HTTP 200 but 0 posts for server-side requests — Reddit silently blocks non-browser traffic to these communities
-- UK product subreddits are set to `UKPersonalFinance`, `gadgets`, `buyitforlife` (confirmed working)
-- US product subreddits (`deals`, `AmazonDeals`, `frugal`) work fine
-- If a subreddit stops returning posts, test with: `curl -s -A "ET-Aggregator/1.0 ..." "https://www.reddit.com/r/{sub}/top.json?t=day&limit=3"`
+- Reddit silently blocks non-browser server-side requests to some communities (returns HTTP 200 but 0 posts)
+- Tech subreddits used: `technology`, `artificial`, `MachineLearning`, `webdev`, `programming` (confirmed working for both UK and US)
+- Node.js fetch requires `Accept: application/json` header — without it Reddit returns an HTML error page
+- HTML guard: response text is checked for `<` prefix; if detected, a clear error is thrown rather than a JSON parse failure
+- If a subreddit stops returning posts, test with: `curl -s -A "TechnologyTrends/1.0" -H "Accept: application/json" "https://www.reddit.com/r/{sub}/top.json?t=day&limit=3"`
+
+## Dashboard Layout
+
+**Global tab** (default, leftmost):
+- Row 1: GitHub Trending + Hacker News (50/50 grid)
+- Row 2: Star Activity chart (full width)
+- Row 3: Dev.to + Stack Overflow (50/50 grid)
+- Row 4: npm Downloads + crates.io (50/50 grid)
+- Row 5: Lobste.rs + Docker Hub (50/50 grid)
+
+**UK / US tabs**:
+- Row 1: News + YouTube (50/50 grid)
+- Row 2: Reddit Trending (full width)
 
 ## Data Flow
 
 ```
 Browser (React)
-    │  fetch() — 5 endpoints in parallel
+    │  fetch() — 10 endpoints in parallel
     ▼
 Next.js Route Handlers (/api/*)
     │  validate params → call external API → normalise → return JSON
     │  on any failure → return mock data
     ▼
-External APIs
-    ├── newsapi.org
-    ├── YouTube Data API v3
-    ├── Reddit public JSON API (no auth)
-    ├── GitHub Search API (no auth)
-    └── Stack Exchange API v2.3 (no auth required)
+External APIs (Global — no auth)
+    ├── GitHub Search API
+    ├── hacker-news.firebaseio.com
+    ├── dev.to public API
+    ├── Stack Exchange API v2.3
+    ├── npmjs.org (registry + downloads)
+    ├── crates.io API v1
+    ├── lobste.rs JSON API
+    └── Docker Hub v2 API
+External APIs (Country-specific)
+    ├── newsapi.org          (NEWS_API_KEY)
+    └── YouTube Data API v3  (YOUTUBE_API_KEY)
+Reddit public JSON API       (no auth — used for UK/US tech subreddits)
 ```
 
 ## Types
@@ -163,4 +185,6 @@ External APIs
 Core types in `lib/types.ts`:
 - `Country` — `'UK' | 'US'`
 - `TimeRange` — `'today' | '7days'`
-- `NewsItem`, `YouTubeVideo`, `TrendItem`, `ProductItem`, `StackOverflowQuestion`
+- `TrendItem`, `NewsItem`, `YouTubeVideo`, `StackOverflowQuestion`
+- `HackerNewsStory`, `DevToArticle`
+- `NpmPackage`, `CratesPackage`, `LobstersStory`, `DockerImage`

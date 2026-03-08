@@ -29,7 +29,7 @@ The dashboard features:
 
 ```bash
 # Clone or open the project directory
-cd et-aggregator
+cd tech-trending
 
 # Install dependencies
 npm install
@@ -76,27 +76,37 @@ npm run lint
 
 ### Dashboard Sections
 
-Each country tab (UK / US) displays six independent sections:
+**Global tab** (default) — universal tech data, no country filter:
 
 | Section | Source | Auth Required |
 |---|---|---|
-| **GitHub Trending** | GitHub Search API | None (optional token for higher rate limit) |
+| **GitHub Trending** | GitHub Search API — new repos by stars | None (optional `GITHUB_TOKEN` for 5k req/hr) |
+| **Hacker News** | Firebase HN API — top/best stories | None |
+| **Dev.to Top Articles** | Dev.to public API — top articles by reactions | None |
+| **Stack Overflow** | Stack Exchange API v2.3 — hot questions | None (optional `STACKOVERFLOW_KEY`) |
+| **npm Downloads** | npmjs.org registry + downloads API — curated popular packages | None |
+| **crates.io Trending** | crates.io API v1 — Rust packages by recent downloads | None |
+| **Lobste.rs** | lobste.rs JSON API — hottest tech stories | None |
+| **Docker Hub** | Docker Hub v2 API — official images by pull count | None |
+
+**UK / US tabs** — country-specific content:
+
+| Section | Source | Auth Required |
+|---|---|---|
+| **Top Headlines** | NewsAPI — technology category + AI/ML keywords | Free API key |
+| **YouTube Trending** | YouTube Data API v3 — Science & Technology (category 28) | Free API key |
 | **Reddit Trending** | Reddit public JSON API — tech/AI/webdev subreddits | None |
-| **Top Headlines** | NewsAPI (newsapi.org) — technology category + AI/ML keywords | Free API key |
-| **YouTube Trending** | YouTube Data API v3 — Science & Technology category (ID 28) | Free API key |
-| **Stack Overflow Hot Questions** | Stack Exchange API v2.3 | None (optional `STACKOVERFLOW_KEY` for 10k req/day) |
 
 ### Time Range
 
-- **Today** — real-time / daily trends
-- **7 Days** — aggregated weekly trends and deal highlights
+- **Today** — real-time / daily trends (HN topstories, GitHub last 24h, Dev.to top=1, YouTube mostPopular)
+- **7 Days** — weekly aggregates (HN beststories, GitHub last 7d, Dev.to top=7, YouTube search by viewCount)
 
 ### Performance
 
-- All five API endpoints are fetched **in parallel** on page load
+- All 10 API endpoints are fetched **in parallel** on page load
 - Sections render independently as data arrives — no waiting for the slowest source
 - Server-side Route Handlers cache responses for 5 minutes (`revalidate: 300`)
-- Total initial data load typically completes in under 2 seconds
 
 ### Graceful Degradation
 
@@ -112,54 +122,71 @@ A clear **DEMO** badge is shown so you always know which sections are live vs. d
 ## Project Structure
 
 ```
-et-aggregator/
+tech-trending/
 │
 ├── app/                          # Next.js App Router
 │   ├── layout.tsx                # Root HTML layout and metadata
 │   ├── page.tsx                  # Entry point — renders Dashboard
 │   ├── globals.css               # Global styles and animations
 │   └── api/                      # Server-side API Route Handlers
-│       ├── trends/route.ts       # GitHub Trending + Reddit (parallel)
+│       ├── trends/route.ts       # GitHub Trending + Reddit
 │       ├── news/route.ts         # NewsAPI headlines
 │       ├── youtube/route.ts      # YouTube trending videos (supports timeRange)
-│       ├── products/route.ts     # Reddit deal communities
-│       └── stackoverflow/route.ts # Stack Exchange hot questions
+│       ├── stackoverflow/route.ts # Stack Exchange hot questions
+│       ├── hackernews/route.ts   # Hacker News top/best stories
+│       ├── devto/route.ts        # Dev.to top articles
+│       ├── npm/route.ts          # npm weekly download counts
+│       ├── crates/route.ts       # crates.io trending Rust packages
+│       ├── lobsters/route.ts     # Lobste.rs hottest tech stories
+│       └── docker/route.ts       # Docker Hub top images by pull count
 │
 ├── components/                   # React UI components
-│   ├── Dashboard.tsx             # Root dashboard — state, fetching, layout
-│   ├── Header.tsx                # Sticky header with controls
-│   ├── TrendsSection.tsx         # Google + Reddit trends + chart
-│   ├── NewsSection.tsx           # News headlines
-│   ├── ProductsSection.tsx       # Trending products/deals
-│   ├── YouTubeSection.tsx        # YouTube trending videos
+│   ├── Dashboard.tsx             # Root — state, fetching, tab layout
+│   ├── Header.tsx                # Sticky header with time range controls
+│   ├── TrendsSection.tsx         # GitHub + Reddit trends + optional chart
+│   ├── HackerNewsSection.tsx     # Hacker News top stories
+│   ├── DevToSection.tsx          # Dev.to top articles
 │   ├── StackOverflowSection.tsx  # Stack Overflow hot questions
-│   ├── TrendCard.tsx             # Individual trend list item
-│   ├── NewsCard.tsx              # Individual news article card
-│   ├── ProductCard.tsx           # Individual product/deal card
-│   ├── YouTubeCard.tsx           # Individual YouTube video card
-│   ├── StackOverflowCard.tsx     # Individual SO question (vote score, tags, answered)
-│   ├── TrendsChart.tsx           # Recharts interest-over-time chart
-│   ├── SectionHeader.tsx         # Reusable section header with badge
-│   ├── Badge.tsx                 # Coloured status/category badge
+│   ├── NpmSection.tsx            # npm weekly download rankings
+│   ├── CratesSection.tsx         # crates.io trending Rust packages
+│   ├── LobstersSection.tsx       # Lobste.rs hottest tech stories
+│   ├── DockerSection.tsx         # Docker Hub top images
+│   ├── NewsSection.tsx           # News headlines
+│   ├── YouTubeSection.tsx        # YouTube trending videos
+│   ├── TrendCard.tsx             # GitHub / Reddit trend item
+│   ├── HackerNewsCard.tsx        # HN story card
+│   ├── DevToCard.tsx             # Dev.to article card
+│   ├── StackOverflowCard.tsx     # SO question (score, tags, answered)
+│   ├── NpmCard.tsx               # npm package card
+│   ├── CratesCard.tsx            # crates.io package card
+│   ├── LobstersCard.tsx          # Lobste.rs story card
+│   ├── DockerCard.tsx            # Docker Hub image card
+│   ├── NewsCard.tsx              # News article card
+│   ├── YouTubeCard.tsx           # YouTube video card
+│   ├── TrendsChart.tsx           # Recharts star-activity chart
+│   ├── SectionHeader.tsx         # Reusable section header with DEMO badge
+│   ├── Badge.tsx                 # Coloured status badge
 │   ├── LoadingSkeleton.tsx       # Skeleton placeholder components
 │   └── ErrorMessage.tsx          # Error/warning display
 │
 ├── lib/                          # Shared logic
-│   ├── types.ts                  # TypeScript type definitions
-│   ├── utils.ts                  # Helper functions (cn, formatters, etc.)
-│   ├── mock-data.ts              # Fallback demo data for all sections
+│   ├── types.ts                  # TypeScript interfaces for all data types
+│   ├── utils.ts                  # Helper functions (cn, timeAgo, country utils)
+│   ├── mock-data.ts              # Fallback demo data for all 10 sections
 │   └── api/                      # External API client modules
-│       ├── github-trending.ts    # GitHub Search API client
-│       ├── reddit.ts             # Reddit client (trends + products)
-│       ├── news.ts               # NewsAPI client
-│       ├── youtube.ts            # YouTube Data API client (today + 7-day modes)
-│       └── stackoverflow.ts      # Stack Exchange API v2.3 client
+│       ├── github-trending.ts    # GitHub Search API
+│       ├── reddit.ts             # Reddit public JSON API
+│       ├── news.ts               # NewsAPI (with UK fallback logic)
+│       ├── youtube.ts            # YouTube Data API v3
+│       ├── stackoverflow.ts      # Stack Exchange API v2.3
+│       ├── hackernews.ts         # HN Firebase API
+│       ├── devto.ts              # Dev.to public API
+│       ├── npm.ts                # npm Registry + Downloads API
+│       ├── crates.ts             # crates.io API v1
+│       ├── lobsters.ts           # Lobste.rs JSON API
+│       └── docker.ts             # Docker Hub v2 API
 │
 ├── research/                     # Architecture and design documentation
-│   ├── research.md               # Technology choices and rationale
-│   ├── architecture.md           # System diagrams (ASCII + Mermaid UML)
-│   ├── api-sources.md            # API endpoint reference
-│   └── design-system.md          # Colour palette, typography, layout grid
 │
 ├── .env.local.example            # Environment variable template
 ├── next.config.mjs               # Next.js configuration
@@ -244,18 +271,26 @@ Full reasoning is documented in [research/research.md](research/research.md). In
 ```
 Browser (React)
     │
-    │  fetch() — all 5 endpoints in parallel
+    │  fetch() — all 10 endpoints in parallel
+    │  sections render independently as each resolves
     │
     ▼
 Next.js Server (Route Handlers)
     │
-    │  Promise.allSettled() per route
+    │  validate params → fetch external API → normalise → JSON
+    │  any failure → return mock data with isDemo: true
     │
-    ├──► GitHub Search API (no auth)
-    ├──► Reddit JSON API (public)
-    ├──► NewsAPI (newsapi.org)
-    ├──► YouTube Data API v3
-    └──► Stack Exchange API v2.3 (no auth)
+    ├──► GitHub Search API        (no auth)
+    ├──► HN Firebase API          (no auth)
+    ├──► Dev.to public API        (no auth)
+    ├──► Stack Exchange API v2.3  (no auth)
+    ├──► npm Registry + Downloads (no auth)
+    ├──► crates.io API v1         (no auth)
+    ├──► Lobste.rs JSON API       (no auth)
+    ├──► Docker Hub v2 API        (no auth)
+    ├──► NewsAPI                  (NEWS_API_KEY)
+    ├──► YouTube Data API v3      (YOUTUBE_API_KEY)
+    └──► Reddit public JSON API   (no auth)
 ```
 
 Each Route Handler:
