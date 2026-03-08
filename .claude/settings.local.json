@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run build:*)",
+      "Bash(timeout 8 npm run dev:*)",
+      "Bash(curl -s -A \"ET-Aggregator/1.0 \\(Emerging Trends Dashboard\\)\" \"https://www.reddit.com/r/uktechdeals/top.json?t=day&limit=3\")",
+      "Bash(curl -s -A \"ET-Aggregator/1.0 \\(Emerging Trends Dashboard\\)\" \"https://www.reddit.com/r/frugaluk/top.json?t=day&limit=3\")",
+      "Bash(curl -s -A \"ET-Aggregator/1.0 \\(Emerging Trends Dashboard\\)\" \"https://www.reddit.com/r/HotUKDeals/top.json?t=week&limit=3\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''week posts:'', len\\(d.get\\(''data'',{}\\).get\\(''children'',[]\\)\\)\\)\")",
+      "Bash(curl -s -A \"ET-Aggregator/1.0 \\(Emerging Trends Dashboard\\)\" \"https://www.reddit.com/r/HotUKDeals/hot.json?limit=3\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''hot posts:'', len\\(d.get\\(''data'',{}\\).get\\(''children'',[]\\)\\)\\)\")",
+      "Bash(curl -s -A \"ET-Aggregator/1.0 \\(Emerging Trends Dashboard\\)\" \"https://www.reddit.com/r/HotUKDeals/top.json?t=day&limit=3\" -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s \"https://www.reddit.com/r/HotUKDeals/top.json?t=day&limit=3\" -H \"User-Agent: Mozilla/5.0\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''posts:'', len\\(d.get\\(''data'',{}\\).get\\(''children'',[]\\)\\)\\)\")",
+      "Bash(curl -sv \"https://www.reddit.com/r/HotUKDeals/top.json?t=day&limit=3\" -H \"User-Agent: Mozilla/5.0\")",
+      "Bash(curl -s -A \"ET-Aggregator/1.0 \\(Emerging Trends Dashboard\\)\" \"https://www.reddit.com/r/deals/top.json?t=day&limit=3\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''deals posts:'', len\\(d.get\\(''data'',{}\\).get\\(''children'',[]\\)\\)\\)\")",
+      "Bash(curl -s -A \"ET-Aggregator/1.0 \\(Emerging Trends Dashboard\\)\" \"https://www.reddit.com/r/HotUKDeals/new.json?limit=3\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''new posts:'', len\\(d.get\\(''data'',{}\\).get\\(''children'',[]\\)\\)\\)\")",
+      "Bash(curl -s -A \"ET-Aggregator/1.0 \\(Emerging Trends Dashboard\\)\" \"https://www.reddit.com/r/hotukdeals/top.json?t=day&limit=3\")",
+      "Bash(curl -s -A \"ET-Aggregator/1.0 \\(Emerging Trends Dashboard\\)\" \"https://www.reddit.com/r/UKPersonalFinance/top.json?t=day&limit=3\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''UKPersonalFinance posts:'', len\\(d.get\\(''data'',{}\\).get\\(''children'',[]\\)\\)\\)\")",
+      "Bash(curl -s -A \"ET-Aggregator/1.0 \\(Emerging Trends Dashboard\\)\" \"https://www.reddit.com/r/HotUKDeals/top.json?t=day&limit=3\" -v)",
+      "Bash(npm uninstall google-trends-api)",
+      "Bash(curl -s \"https://api.github.com/search/repositories?q=created:>2026-03-07&sort=stars&order=desc&per_page=3\" -H \"Accept: application/vnd.github+json\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(r[''full_name''], r[''stargazers_count'']\\) for r in d.get\\(''items'',[]\\)]\")",
+      "Bash(curl -s \"https://api.stackexchange.com/2.3/questions?order=desc&sort=hot&site=stackoverflow&pagesize=5\")",
+      "Bash(python -c \"import sys,json,gzip,io; raw=sys.stdin.buffer.read\\(\\); d=json.loads\\(gzip.decompress\\(raw\\)\\); [print\\(q[''score''], q[''answer_count''], q[''view_count''], q[''title''][:60]\\) for q in d.get\\(''items'',[]\\)]\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(q[''score''], q[''answer_count''], q[''view_count''], q[''title''][:70]\\) for q in d.get\\(''items'',[]\\)]\")",
+      "Bash(curl -s \"https://api.stackexchange.com/2.3/questions?order=desc&sort=hot&site=stackoverflow&pagesize=3\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''quota_remaining:'', d.get\\(''quota_remaining''\\), ''items:'', len\\(d.get\\(''items'',[]\\)\\)\\)\")",
+      "Bash(curl -s \"https://api.stackexchange.com/2.3/questions?order=desc&sort=week&site=stackoverflow&pagesize=8\")",
+      "Bash(python -c \":*)",
+      "Bash(curl -s --compressed \"https://api.stackexchange.com/2.3/questions?order=desc&sort=hot&site=stackoverflow&pagesize=8\")",
+      "Bash(curl -sv --compressed \"https://api.stackexchange.com/2.3/questions?order=desc&sort=hot&site=stackoverflow&pagesize=3\")",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\" \"https://api.stackexchange.com/2.3/questions?order=desc&sort=hot&site=stackoverflow&pagesize=3\")"
+    ]
+  }
+}
